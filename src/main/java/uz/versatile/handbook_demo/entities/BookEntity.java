@@ -23,8 +23,9 @@ public class BookEntity implements Serializable {
     @GeneratedValue(generator = "optimized-sequence")
     private Long id;
 
-    @Column(nullable = false, length = 2048)
+    @Column(nullable = false, columnDefinition = "text", length = 2048)
     private String title;
+    private Boolean isActive = Boolean.TRUE;
 
     @Column(name = "created_date")
     private Date createdDate = new Date();

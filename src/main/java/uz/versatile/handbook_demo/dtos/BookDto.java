@@ -19,15 +19,17 @@ public class BookDto implements Serializable {
 
     @ApiModelProperty(hidden = true)
     private String id;
+    @ApiModelProperty(hidden = true)
+    private String createdDate;
+    @ApiModelProperty(hidden = true)
+    private Boolean isActive;
+
 
     @ApiModelProperty(required = true, value = "Title",
             notes = "Title for booking entity",
             allowableValues = "Book Title (1 - 2048 chars)")
     @JsonProperty(required = true)
     private String title;
-
-    @ApiModelProperty(hidden = true)
-    private String createdDate;
 
     @ApiModelProperty(value = "Parent Id",
             notes = "Write exist parent id other case throw except",
