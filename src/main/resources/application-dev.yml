@@ -1,0 +1,28 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/hand_book #for prod add (remotely connection) >> ?ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory
+    username: postgres
+    password: root
+
+  jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true # on dev profile
+    hibernate:
+      ddl-auto: update
+
+logging:
+  file:
+    name: logs/handbook_demo.log
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    org.springframework.web: DEBUG
+    guru.springframework.controllers: DEBUG
+    org.hibernate: DEBUG

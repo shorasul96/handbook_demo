@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  handbook_demo:
+    image: 'handbook_demo:latest'
+    build:
+      context: ""
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5433/hand_book
+      SPRING_DATASOURCE_USERNAME: versatile
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+
+  db:
+    image: "postgres"
+    ports:
+      - "5433:5432"
+    command: -p 5433
+    environment:
+      POSTGRES_DB: hand_book
+      POSTGRES_USER: versatile
+      POSTGRES_PASSWORD: root
