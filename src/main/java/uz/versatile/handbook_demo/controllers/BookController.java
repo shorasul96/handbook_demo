@@ -8,6 +8,8 @@ import uz.versatile.handbook_demo.dtos.BookDto;
 import uz.versatile.handbook_demo.dtos.queries.BookQuery;
 import uz.versatile.handbook_demo.services.BookService;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -21,6 +23,12 @@ public class BookController {
      public List<BookDto> getAllDto(){
         return bookService.getAll();
     }
+
+   @GetMapping("export")
+   public void exportToCSV(HttpServletResponse response) throws IOException {
+        bookService.exportBooks(response);
+   }
+
 
     @GetMapping("pageable")
     public Page<BookQuery> getAllVacancies(
