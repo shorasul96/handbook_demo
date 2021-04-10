@@ -17,6 +17,7 @@ import uz.versatile.handbook_demo.services.BookService;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -30,7 +31,7 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional(readOnly = true)
     public List<BookDto> getAll() {
-        return bookRepository.findAll().stream().map(BookEntity::dto).collect(Collectors.toList());
+        return bookRepository.findAllWithHierarchy().stream().map(BookEntity::dto).collect(Collectors.toList());
     }
 
     @Override
@@ -49,9 +50,7 @@ public class BookServiceImpl implements BookService {
 
         BookEntity entity = new BookEntity();
         BeanUtils.copyProperties(dto, entity, "id", "isActive");
-        setParent(dto, entity);
-        BookEntity saveAndFlush = bookRepository.saveAndFlush(entity);
-        return saveAndFlush.getId() != null;
+        return setParent(dto, entity).getId() != null;
     }
 
 
@@ -65,21 +64,30 @@ public class BookServiceImpl implements BookService {
         entity.setTitle(dto.getTitle());
         setParent(dto, entity);
 
-        BookEntity saveAndFlush = bookRepository.saveAndFlush(entity);
-        return saveAndFlush.getId().toString().equals(dto.getId());
+        return entity.getId().toString().equals(dto.getId());
     }
 
 
-    private void setParent(BookDto dto, BookEntity entity) {
-        if (dto.getParentId() != null) {
-            List<String> strings = Arrays.stream(dto.getParentId().split("\\.")).collect(Collectors.toList());
-            for (String s : strings)
+    private BookEntity setParent(BookDto dto, BookEntity entity) {
+        if (dto.getParentIdStr() != null) {
+            List<String> list = Arrays.stream(dto.getParentIdStr().split("\\.")).collect(Collectors.toList());
+            for (String s : list)
                 bookRepository.findById(Long.parseLong(s))
                         .orElseThrow(() -> new IllegalArgumentException("Not found book with given ID: " + s));
-            entity.setParentId(dto.getParentId());
-        } else {
-            entity.setParentId(null);
+            Optional<BookEntity> parentById = bookRepository.findById(Long.parseLong(list.get(list.size() - 1)));
+            if (parentById.isPresent()) {
+                entity.setParentIdStr(parentById.get().getParentIdStr() != null
+                        ? parentById.get().getParentIdStr() + "." + parentById.get().getId()
+                        : parentById.get().getId().toString());
+                List<BookEntity> children = parentById.get().getChildren();
+                children.add(entity);
+                parentById.get().setChildren(children);
+                entity.setParent(parentById.get());
+            }
+
         }
+
+       return bookRepository.saveAndFlush(entity);
     }
 
 }
